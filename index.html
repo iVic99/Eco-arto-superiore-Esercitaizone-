@@ -33,6 +33,8 @@
     font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
     line-height:1.45;
     padding:0 0 40px 0;
+    -webkit-user-select:none;
+    user-select:none;
   }
   header{
     padding:22px 18px 14px 18px;
@@ -66,8 +68,8 @@
   .controls{display:flex; gap:8px; padding:10px 14px; flex-wrap:wrap; border-bottom:1px solid var(--line);}
   .ctrlbtn{background:var(--panel-2); border:1px solid var(--line); color:var(--text); padding:7px 11px; border-radius:7px; font-size:0.76rem; font-weight:600; cursor:pointer;}
   .ctrlbtn.on{background:var(--amber); color:var(--bg); border-color:var(--amber);}
-  svg.echo{display:block; width:100%; height:auto; background:radial-gradient(ellipse at 50% 30%, var(--tissue-2), var(--tissue) 75%);}
-  .shape{cursor:pointer; stroke-width:2; transition:transform .35s ease, fill .25s ease, opacity .25s ease; transform-box:fill-box; transform-origin:center;}
+  svg.echo{display:block; width:100%; height:auto; background:radial-gradient(ellipse at 50% 30%, var(--tissue-2), var(--tissue) 75%); touch-action:none;}
+  .shape{cursor:pointer; stroke-width:2; transition:transform .35s ease, fill .25s ease; transform-box:fill-box; transform-origin:center;}
   .shape.selected{stroke:var(--amber); stroke-width:3.5;}
   .artery-shape{fill:#0a0d0e; stroke:#5a4038;}
   svg.doppler .artery-shape{fill:var(--artery); opacity:0.88;}
@@ -81,7 +83,6 @@
   .nerve-fasc{fill:#0a0d0e; stroke:var(--nerve-dim); stroke-width:1; pointer-events:none;}
   .muscle-shape{fill:#20302f; stroke:#33453f; stroke-width:1.5; opacity:0.85; pointer-events:none;}
   .orient{fill:#5c6b70; font-size:9.5px; font-family:ui-monospace,Menlo,monospace; letter-spacing:0.06em;}
-  .mlabel{fill:#4f6560; font-size:8px; font-family:ui-monospace,Menlo,monospace; pointer-events:none;}
   .info{padding:14px; min-height:118px;}
   .info .placeholder{color:var(--text-dim); font-size:0.84rem;}
   .info .tag{display:inline-block; font-size:0.68rem; font-weight:700; padding:3px 8px; border-radius:5px; margin-bottom:8px; font-family:ui-monospace,Menlo,monospace; letter-spacing:0.03em;}
@@ -94,6 +95,7 @@
   .info .crit li::before{content:"—"; position:absolute; left:0; color:var(--text-dim);}
   .info .pearl{margin-top:10px; padding:9px 11px; background:var(--panel-2); border-left:2px solid var(--amber); border-radius:0 6px 6px 0; font-size:0.81rem; color:#d9dfe1;}
   .info .risk{margin-top:8px; padding:9px 11px; background:#2a1613; border-left:2px solid var(--bad); border-radius:0 6px 6px 0; font-size:0.81rem; color:#f0c9c2;}
+  .info .interp-note{margin-top:8px; font-size:0.72rem; color:var(--text-dim); font-style:italic;}
   .legend{display:flex; gap:14px; padding:12px 14px; border-top:1px solid var(--line); font-size:0.74rem; color:var(--text-dim); flex-wrap:wrap;}
   .legend span{display:flex; align-items:center; gap:5px;}
   .dot{width:9px; height:9px; border-radius:50%; display:inline-block;}
@@ -106,6 +108,53 @@
   table.compare tr:last-child td{border-bottom:none;}
   td.artery-cell{color:#f0a99a;} td.vein-cell{color:#a9cdea;} td.nerve-cell{color:var(--nerve);}
   .note{font-size:0.76rem; color:var(--text-dim); margin-top:8px;}
+
+  /* scan track (probe sweep) */
+  .scan-wrap{padding:12px 14px 16px 14px; border-bottom:1px solid var(--line);}
+  .scan-caption{font-size:0.76rem; color:var(--text-dim); margin-bottom:10px;}
+  .scan-track{
+    position:relative;
+    height:40px;
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    border-radius:20px;
+    touch-action:none;
+    cursor:pointer;
+  }
+  .scan-fill{
+    position:absolute; top:0; left:0; height:100%;
+    background:linear-gradient(90deg, rgba(232,197,71,0.05), rgba(232,197,71,0.28));
+    border-radius:20px 0 0 20px;
+    pointer-events:none;
+  }
+  .scan-handle{
+    position:absolute; top:50%; width:30px; height:30px;
+    margin-top:-15px; margin-left:-15px;
+    background:var(--amber);
+    border-radius:50%;
+    box-shadow:0 0 0 5px rgba(232,197,71,0.18);
+    cursor:grab;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .scan-handle::after{
+    content:"";
+    width:10px; height:10px;
+    border-radius:50%;
+    background:var(--bg);
+  }
+  .scan-handle:active{cursor:grabbing;}
+  .scan-labels{
+    display:flex; justify-content:space-between;
+    font-size:0.68rem; color:var(--text-dim);
+    margin-top:8px;
+    font-family:ui-monospace,Menlo,monospace;
+  }
+  .scan-pos{
+    font-family:ui-monospace,Menlo,monospace;
+    color:var(--amber);
+    font-size:0.7rem;
+  }
+
   .quiz-card{background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:14px;}
   .quiz-progress{display:flex; justify-content:space-between; font-size:0.76rem; color:var(--text-dim); margin-bottom:10px; font-family:ui-monospace,Menlo,monospace;}
   .quiz-stage{border-radius:10px; overflow:hidden; border:1px solid var(--line); margin-bottom:12px;}
@@ -136,7 +185,46 @@
 <div class="tabbar" id="tabbar"></div>
 
 <main>
-  <div class="view active" id="view-atlas">
+  <div class="view active" id="view-scan">
+    <div class="stage">
+      <div class="stage-head">
+        <div>
+          <span class="lvl-name">Scansione dinamica — gomito → braccio</span>
+          <span class="lvl-sub">Trascina il dito (o il cursore) sulla barra per muovere la sonda lungo l'arto, come in una scansione reale</span>
+        </div>
+      </div>
+      <div class="scan-wrap">
+        <div class="scan-track" id="scan-track">
+          <div class="scan-fill" id="scan-fill"></div>
+          <div class="scan-handle" id="scan-handle"></div>
+        </div>
+        <div class="scan-labels">
+          <span>Fossa antecubitale (gomito)</span>
+          <span class="scan-pos" id="scan-pos-label">0%</span>
+          <span>Braccio medio</span>
+        </div>
+      </div>
+      <div class="controls">
+        <button class="ctrlbtn" id="btn-doppler">Color Doppler</button>
+        <button class="ctrlbtn" id="btn-compress">Test compressione</button>
+        <button class="ctrlbtn" id="btn-pulse">Mostra pulsatilità</button>
+      </div>
+      <div id="scan-svg-holder"></div>
+      <div class="legend">
+        <span><i class="dot artery"></i>Arteria</span>
+        <span><i class="dot vein"></i>Vena</span>
+        <span><i class="dot nerve"></i>Nervo</span>
+      </div>
+    </div>
+    <div class="stage" style="margin-top:10px;">
+      <div class="info" id="scan-info-panel">
+        <p class="placeholder">Trascina la sonda sulla barra, poi tocca una struttura per vedere nome, criteri di identificazione e rischi.</p>
+      </div>
+    </div>
+    <p class="note">Nella scansione reale, muovendo la sonda dal gomito verso la spalla vedrai la cefalica e la mediana cubitale uscire dal piano di scansione, la basilica restare superficiale e ben visibile, e il nervo ulnare separarsi dal fascio verso il lato posteriore: qui sotto puoi vederlo riprodotto in modo semplificato.</p>
+  </div>
+
+  <div class="view" id="view-atlas">
     <div class="stage">
       <div class="stage-head">
         <div>
@@ -146,9 +234,9 @@
         </div>
       </div>
       <div class="controls">
-        <button class="ctrlbtn" id="btn-doppler">Color Doppler</button>
-        <button class="ctrlbtn" id="btn-compress">Test compressione</button>
-        <button class="ctrlbtn" id="btn-pulse">Mostra pulsatilità</button>
+        <button class="ctrlbtn" id="btn-doppler-s">Color Doppler</button>
+        <button class="ctrlbtn" id="btn-compress-s">Test compressione</button>
+        <button class="ctrlbtn" id="btn-pulse-s">Mostra pulsatilità</button>
       </div>
       <div id="svg-holder"></div>
       <div class="legend">
@@ -162,43 +250,43 @@
         <p class="placeholder">Tocca una struttura sull'immagine per vedere nome, criteri di identificazione, note cliniche e rischi da evitare in puntura.</p>
       </div>
     </div>
-
-    <h2 class="section-title">Criteri differenziali in sintesi</h2>
-    <table class="compare">
-      <tr><th></th><th>Arteria</th><th>Vena</th><th>Nervo</th></tr>
-      <tr>
-        <td>Comprimibilità</td>
-        <td class="artery-cell">Non comprimibile</td>
-        <td class="vein-cell">Comprimibile (collassa)</td>
-        <td class="nerve-cell">Non comprimibile</td>
-      </tr>
-      <tr>
-        <td>Parete / bordo</td>
-        <td class="artery-cell">Spessa, trilaminare</td>
-        <td class="vein-cell">Sottile</td>
-        <td class="nerve-cell">Iperecogeno (epinervio)</td>
-      </tr>
-      <tr>
-        <td>Ecostruttura interna</td>
-        <td class="artery-cell">Anecogena, lume rotondo</td>
-        <td class="vein-cell">Anecogena, lume ovale/comprimibile</td>
-        <td class="nerve-cell">"A nido d'ape": fascicoli ipoecogeni in trama iperecogena</td>
-      </tr>
-      <tr>
-        <td>Segnale Doppler</td>
-        <td class="artery-cell">Flusso pulsatile</td>
-        <td class="vein-cell">Flusso continuo/fasico con il respiro</td>
-        <td class="nerve-cell">Assente</td>
-      </tr>
-      <tr>
-        <td>Dinamica</td>
-        <td class="artery-cell">Pulsa in asse corto</td>
-        <td class="vein-cell">Si distende con Valsalva, aumenta con spremitura distale</td>
-        <td class="nerve-cell">Scorre (sliding) con i movimenti</td>
-      </tr>
-    </table>
-    <p class="note">Nota sull'orientamento: "LAT/MED" o "ANT/POST" indicano l'orientamento anatomico reale; il lato dello schermo dipende dalla convenzione del marker della sonda in uso in laboratorio — verifica sempre quella del tuo ecografo prima dell'esame.</p>
   </div>
+
+  <h2 class="section-title">Criteri differenziali in sintesi</h2>
+  <table class="compare">
+    <tr><th></th><th>Arteria</th><th>Vena</th><th>Nervo</th></tr>
+    <tr>
+      <td>Comprimibilità</td>
+      <td class="artery-cell">Non comprimibile</td>
+      <td class="vein-cell">Comprimibile (collassa)</td>
+      <td class="nerve-cell">Non comprimibile</td>
+    </tr>
+    <tr>
+      <td>Parete / bordo</td>
+      <td class="artery-cell">Spessa, trilaminare</td>
+      <td class="vein-cell">Sottile</td>
+      <td class="nerve-cell">Iperecogeno (epinervio)</td>
+    </tr>
+    <tr>
+      <td>Ecostruttura interna</td>
+      <td class="artery-cell">Anecogena, lume rotondo</td>
+      <td class="vein-cell">Anecogena, lume ovale/comprimibile</td>
+      <td class="nerve-cell">"A nido d'ape": fascicoli ipoecogeni in trama iperecogena</td>
+    </tr>
+    <tr>
+      <td>Segnale Doppler</td>
+      <td class="artery-cell">Flusso pulsatile</td>
+      <td class="vein-cell">Flusso continuo/fasico con il respiro</td>
+      <td class="nerve-cell">Assente</td>
+    </tr>
+    <tr>
+      <td>Dinamica</td>
+      <td class="artery-cell">Pulsa in asse corto</td>
+      <td class="vein-cell">Si distende con Valsalva, aumenta con spremitura distale</td>
+      <td class="nerve-cell">Scorre (sliding) con i movimenti</td>
+    </tr>
+  </table>
+  <p class="note">Nota sull'orientamento: "LAT/MED" o "ANT/POST" indicano l'orientamento anatomico reale; il lato dello schermo dipende dalla convenzione del marker della sonda in uso in laboratorio — verifica sempre quella del tuo ecografo prima dell'esame.</p>
 
   <div class="view" id="view-quiz">
     <div class="quiz-card" id="quiz-start">
@@ -232,7 +320,7 @@
 </main>
 
 <script>
-/* ---------- dati anatomici ---------- */
+/* ---------- dati anatomici (per livelli statici + quiz) ---------- */
 const LEVELS = [
   {
     id:"gomito",
@@ -323,7 +411,8 @@ const LEVELS = [
       {id:"v_succlavia", type:"vein", name:"Vena succlavia",
         x:150, y:130, rx:20, ry:14,
         crit:["Decorre anteriormente al muscolo scaleno anteriore","Meno comprimibile che altrove per la vicinanza a clavicola e prima costa: il test di compressione qui è poco affidabile"],
-        pearl:"Distinguila dall'arteria soprattutto in base alla posizione anatomica rispetto allo scaleno anteriore e al Color Doppler, più che alla comprimibilità."},
+        pearl:"Distinguila dall'arteria soprattutto in base alla posizione anatomica rispetto allo scaleno anteriore e al Color Doppler, più che alla comprimibilità.",
+        lowCompress:true},
       {id:"m_scaleno", type:"other", name:"Muscolo scaleno anteriore",
         x:210, y:150, rx:16, ry:26, isMuscle:true,
         crit:["Repere chiave: separa la vena (anteriore) dall'arteria (posteriore)","Ecostruttura muscolare striata, non vascolare, non nervosa"],
@@ -340,10 +429,22 @@ const LEVELS = [
     ]
   }
 ];
-
 const TYPE_LABEL = {artery:"Arteria", vein:"Vena", nerve:"Nervo", other:"Repere muscolare"};
 
-/* ---------- costruzione SVG per livello ---------- */
+/* ---------- pairs per la scansione dinamica gomito<->braccio ---------- */
+const G = id => LEVELS[0].structs.find(s=>s.id===id);
+const B = id => LEVELS[1].structs.find(s=>s.id===id);
+const MATCHED = [
+  {name:"Vena basilica", type:"vein", g:G("v_basilica_g"), b:B("v_basilica_b")},
+  {name:"Arteria brachiale", type:"artery", g:G("a_brachiale_g"), b:B("a_brachiale_b")},
+  {name:"Nervo mediano", type:"nerve", g:G("n_mediano_g"), b:B("n_mediano_b")}
+];
+const ONLY_G = ["v_cefalica_g","v_mediana_cubitale"].map(G);
+const ONLY_B = ["v_brachiali_b","n_ulnare_b"].map(B);
+
+function lerp(a,b,t){ return a+(b-a)*t; }
+
+/* ---------- costruzione SVG statico (per tab collo/succlavia e per il quiz) ---------- */
 function buildSVG(level){
   const w=380, h=260;
   let shapes = "";
@@ -359,17 +460,15 @@ function buildSVG(level){
         ${fascicles(s.x,s.y,s.rx,s.ry)}
       </g>`;
     } else if(s.isPair){
-      const lowC = s.id==="v_succlavia" ? " low-compress" : "";
-      shapes += `<g class="shape ${cls}${lowC}" data-id="${s.id}" tabindex="0">
+      shapes += `<g class="shape ${cls}" data-id="${s.id}" tabindex="0">
         <ellipse cx="${s.x-s.offset}" cy="${s.y}" rx="${s.rx*0.5}" ry="${s.ry*0.62}"/>
         <ellipse cx="${s.x+s.offset}" cy="${s.y}" rx="${s.rx*0.5}" ry="${s.ry*0.62}"/>
       </g>`;
     } else {
-      const lowC = s.id==="v_succlavia" ? " low-compress" : "";
+      const lowC = s.lowCompress ? " low-compress" : "";
       shapes += `<ellipse class="shape ${cls}${lowC}" data-id="${s.id}" tabindex="0" cx="${s.x}" cy="${s.y}" rx="${s.rx}" ry="${s.ry}"/>`;
     }
   });
-
   return `<svg class="echo" viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
     <text class="orient" x="14" y="18">SUPERFICIALE</text>
     <text class="orient" x="14" y="${h-10}">PROFONDO</text>
@@ -387,34 +486,188 @@ function fascicles(cx,cy,rx,ry){
   return d;
 }
 
-/* ---------- stato atlante ---------- */
-let currentLevel = 0;
+/* ---------- vista dinamica (scansione gomito -> braccio) ---------- */
+let scanT = 0;
+function buildScanSVG(t){
+  const w=380, h=260;
+  let shapes = "";
 
+  MATCHED.forEach(pair=>{
+    const x = lerp(pair.g.x, pair.b.x, t);
+    const y = lerp(pair.g.y, pair.b.y, t);
+    const rx = lerp(pair.g.rx, pair.b.rx, t);
+    const ry = lerp(pair.g.ry, pair.b.ry, t);
+    const cls = pair.type+"-shape";
+    const dataId = "pair_"+pair.name.replace(/\s+/g,"_");
+    if(pair.type==="nerve"){
+      shapes += `<g class="shape ${cls}" data-id="${dataId}" tabindex="0">
+        <ellipse cx="${x}" cy="${y}" rx="${rx}" ry="${ry}" class="nerve-shape"/>
+        ${fascicles(x,y,rx,ry)}
+      </g>`;
+    } else {
+      shapes += `<ellipse class="shape ${cls}" data-id="${dataId}" tabindex="0" cx="${x}" cy="${y}" rx="${rx}" ry="${ry}"/>`;
+    }
+  });
+
+  ONLY_G.forEach(s=>{
+    const op = Math.max(0, 1-t);
+    if(op < 0.04) return;
+    const cls = s.type+"-shape";
+    shapes += `<ellipse class="shape ${cls}" data-id="${s.id}" tabindex="0" cx="${s.x}" cy="${s.y}" rx="${s.rx}" ry="${s.ry}" style="opacity:${op}; pointer-events:${op>0.15?'all':'none'};"/>`;
+  });
+  ONLY_B.forEach(s=>{
+    const op = Math.max(0, t);
+    if(op < 0.04) return;
+    const cls = s.type+"-shape";
+    if(s.isPair){
+      shapes += `<g class="shape ${cls}" data-id="${s.id}" tabindex="0" style="opacity:${op}; pointer-events:${op>0.15?'all':'none'};">
+        <ellipse cx="${s.x-s.offset}" cy="${s.y}" rx="${s.rx*0.5}" ry="${s.ry*0.62}"/>
+        <ellipse cx="${s.x+s.offset}" cy="${s.y}" rx="${s.rx*0.5}" ry="${s.ry*0.62}"/>
+      </g>`;
+    } else if(s.type==="nerve"){
+      shapes += `<g class="shape ${cls}" data-id="${s.id}" tabindex="0" style="opacity:${op}; pointer-events:${op>0.15?'all':'none'};">
+        <ellipse cx="${s.x}" cy="${s.y}" rx="${s.rx}" ry="${s.ry}" class="nerve-shape"/>
+        ${fascicles(s.x,s.y,s.rx,s.ry)}
+      </g>`;
+    } else {
+      shapes += `<ellipse class="shape ${cls}" data-id="${s.id}" tabindex="0" cx="${s.x}" cy="${s.y}" rx="${s.rx}" ry="${s.ry}" style="opacity:${op}; pointer-events:${op>0.15?'all':'none'};"/>`;
+    }
+  });
+
+  return `<svg class="echo" id="scan-echo-svg" viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
+    <text class="orient" x="14" y="18">SUPERFICIALE</text>
+    <text class="orient" x="14" y="${h-10}">PROFONDO</text>
+    <text class="orient" x="6" y="${h/2}" transform="rotate(-90 6 ${h/2})">LAT</text>
+    <text class="orient" x="${w-24}" y="${h/2}">MED</text>
+    ${shapes}
+  </svg>`;
+}
+
+function findScanInfo(dataId){
+  if(dataId.startsWith("pair_")){
+    const pair = MATCHED.find(p=>"pair_"+p.name.replace(/\s+/g,"_")===dataId);
+    if(!pair) return null;
+    const nearer = scanT < 0.5 ? pair.g : pair.b;
+    return { type:pair.type, name:pair.name, crit:nearer.crit, pearl:nearer.pearl, risk:nearer.risk, interp:true };
+  }
+  const fromG = ONLY_G.find(s=>s.id===dataId);
+  if(fromG) return fromG;
+  const fromB = ONLY_B.find(s=>s.id===dataId);
+  if(fromB) return fromB;
+  return null;
+}
+
+function renderScan(t, preserveModes){
+  scanT = Math.max(0, Math.min(1, t));
+  document.getElementById("scan-svg-holder").innerHTML = buildScanSVG(scanT);
+  document.getElementById("scan-fill").style.width = (scanT*100)+"%";
+  document.getElementById("scan-handle").style.left = (scanT*100)+"%";
+  document.getElementById("scan-pos-label").textContent = Math.round(scanT*100)+"%";
+  const svg = document.getElementById("scan-echo-svg");
+  if(preserveModes){
+    if(preserveModes.doppler) svg.classList.add("doppler");
+    if(preserveModes.compress) svg.classList.add("compressed");
+    if(preserveModes.pulse) svg.classList.add("pulse");
+  }
+  svg.querySelectorAll(".shape").forEach(el=>{
+    el.addEventListener("click", ()=>{
+      svg.querySelectorAll(".shape").forEach(x=>x.classList.remove("selected"));
+      el.classList.add("selected");
+      showScanInfo(el.getAttribute("data-id"));
+    });
+  });
+}
+
+function showScanInfo(dataId){
+  const s = findScanInfo(dataId);
+  if(!s) return;
+  const critHtml = s.crit.map(c=>`<li>${c}</li>`).join("");
+  const pearlHtml = s.pearl ? `<div class="pearl">${s.pearl}</div>` : "";
+  const riskHtml = s.risk ? `<div class="risk">${s.risk}</div>` : "";
+  const interpHtml = s.interp ? `<div class="interp-note">Vista interpolata: i criteri mostrati si riferiscono al punto di repere più vicino alla posizione attuale della sonda (gomito o braccio).</div>` : "";
+  document.getElementById("scan-info-panel").innerHTML = `
+    <span class="tag ${s.type}">${TYPE_LABEL[s.type]}</span>
+    <h3>${s.name}</h3>
+    <ul class="crit">${critHtml}</ul>
+    ${pearlHtml}${riskHtml}${interpHtml}
+  `;
+}
+
+/* drag handling per la barra di scansione */
+(function setupScanTrack(){
+  const track = document.getElementById("scan-track");
+  let dragging = false;
+
+  function posFromEvent(e){
+    const rect = track.getBoundingClientRect();
+    const x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
+    return Math.max(0, Math.min(1, x/rect.width));
+  }
+  function onDown(e){
+    dragging = true;
+    renderScan(posFromEvent(e), currentScanModes());
+    e.preventDefault();
+  }
+  function onMove(e){
+    if(!dragging) return;
+    renderScan(posFromEvent(e), currentScanModes());
+    e.preventDefault();
+  }
+  function onUp(){ dragging = false; }
+
+  track.addEventListener("mousedown", onDown);
+  window.addEventListener("mousemove", onMove);
+  window.addEventListener("mouseup", onUp);
+  track.addEventListener("touchstart", onDown, {passive:false});
+  window.addEventListener("touchmove", onMove, {passive:false});
+  window.addEventListener("touchend", onUp);
+})();
+
+function currentScanModes(){
+  return {
+    doppler: document.getElementById("btn-doppler").classList.contains("on"),
+    compress: document.getElementById("btn-compress").classList.contains("on"),
+    pulse: document.getElementById("btn-pulse").classList.contains("on")
+  };
+}
+document.getElementById("btn-doppler").addEventListener("click", (e)=>{
+  e.currentTarget.classList.toggle("on");
+  renderScan(scanT, currentScanModes());
+});
+document.getElementById("btn-compress").addEventListener("click", (e)=>{
+  e.currentTarget.classList.toggle("on");
+  renderScan(scanT, currentScanModes());
+});
+document.getElementById("btn-pulse").addEventListener("click", (e)=>{
+  e.currentTarget.classList.toggle("on");
+  renderScan(scanT, currentScanModes());
+});
+
+/* ---------- viste statiche (collo, succlavia) ---------- */
+let currentLevel = 2; // indice in LEVELS
 function renderLevel(){
   const lvl = LEVELS[currentLevel];
   document.getElementById("lvl-name").textContent = lvl.name;
   document.getElementById("lvl-sub").textContent = lvl.sub;
   document.getElementById("lvl-use").textContent = lvl.use;
   document.getElementById("svg-holder").innerHTML = buildSVG(lvl);
-  document.getElementById("btn-doppler").classList.remove("on");
-  document.getElementById("btn-compress").classList.remove("on");
-  document.getElementById("btn-pulse").classList.remove("on");
+  document.getElementById("btn-doppler-s").classList.remove("on");
+  document.getElementById("btn-compress-s").classList.remove("on");
+  document.getElementById("btn-pulse-s").classList.remove("on");
   document.getElementById("info-panel").innerHTML = '<p class="placeholder">Tocca una struttura sull\'immagine per vedere nome, criteri di identificazione, note cliniche e rischi da evitare in puntura.</p>';
-  attachShapeHandlers();
+  attachStaticHandlers();
 }
-
-function attachShapeHandlers(){
+function attachStaticHandlers(){
   const svg = document.querySelector("#svg-holder svg");
   svg.querySelectorAll(".shape").forEach(el=>{
     el.addEventListener("click", ()=>{
       svg.querySelectorAll(".shape").forEach(x=>x.classList.remove("selected"));
       el.classList.add("selected");
-      showInfo(el.getAttribute("data-id"));
+      showStaticInfo(el.getAttribute("data-id"));
     });
   });
 }
-
-function showInfo(id){
+function showStaticInfo(id){
   const lvl = LEVELS[currentLevel];
   const s = lvl.structs.find(x=>x.id===id);
   if(!s) return;
@@ -428,33 +681,40 @@ function showInfo(id){
     ${pearlHtml}${riskHtml}
   `;
 }
-
-document.getElementById("btn-doppler").addEventListener("click", (e)=>{
+document.getElementById("btn-doppler-s").addEventListener("click", (e)=>{
   document.querySelector("#svg-holder svg").classList.toggle("doppler");
   e.currentTarget.classList.toggle("on");
 });
-document.getElementById("btn-compress").addEventListener("click", (e)=>{
+document.getElementById("btn-compress-s").addEventListener("click", (e)=>{
   document.querySelector("#svg-holder svg").classList.toggle("compressed");
   e.currentTarget.classList.toggle("on");
 });
-document.getElementById("btn-pulse").addEventListener("click", (e)=>{
+document.getElementById("btn-pulse-s").addEventListener("click", (e)=>{
   document.querySelector("#svg-holder svg").classList.toggle("pulse");
   e.currentTarget.classList.toggle("on");
 });
 
 /* ---------- tabbar ---------- */
+function switchView(name){
+  document.getElementById("view-scan").classList.toggle("active", name==="scan");
+  document.getElementById("view-atlas").classList.toggle("active", name==="atlas");
+  document.getElementById("view-quiz").classList.toggle("active", name==="quiz");
+}
 function buildTabs(){
   const bar = document.getElementById("tabbar");
-  LEVELS.forEach((lvl,i)=>{
+  const tabs = [
+    {label:"Scansione braccio", action:()=>{ switchView("scan"); }},
+    {label:"Collo", action:()=>{ currentLevel=2; switchView("atlas"); renderLevel(); }},
+    {label:"Succlavia", action:()=>{ currentLevel=3; switchView("atlas"); renderLevel(); }}
+  ];
+  tabs.forEach((t,i)=>{
     const b = document.createElement("button");
     b.className = "tabbtn" + (i===0 ? " active":"");
-    b.textContent = lvl.name;
+    b.textContent = t.label;
     b.addEventListener("click", ()=>{
-      currentLevel=i;
       document.querySelectorAll("#tabbar .tabbtn").forEach(x=>x.classList.remove("active"));
       b.classList.add("active");
-      switchView("atlas");
-      renderLevel();
+      t.action();
     });
     bar.appendChild(b);
   });
@@ -468,10 +728,6 @@ function buildTabs(){
   });
   bar.appendChild(qb);
 }
-function switchView(name){
-  document.getElementById("view-atlas").classList.toggle("active", name==="atlas");
-  document.getElementById("view-quiz").classList.toggle("active", name==="quiz");
-}
 
 /* ---------- quiz ---------- */
 let quizPool = [];
@@ -479,7 +735,6 @@ let quizIdx = 0;
 let quizScore = 0;
 let quizWrong = [];
 let quizCurrent = null;
-
 function allStructs(){
   const out=[];
   LEVELS.forEach(lvl=>{
@@ -508,21 +763,18 @@ function nextQuestion(){
   quizCurrent = quizPool[quizIdx];
   document.getElementById("q-progress").textContent = `Domanda ${quizIdx+1}/${quizPool.length}`;
   document.getElementById("q-score").textContent = `Corrette: ${quizScore}`;
-
   const lvl = LEVELS.find(l=>l.id===quizCurrent.levelId);
   document.getElementById("quiz-stage-holder").innerHTML = buildSVG(lvl);
   const svg = document.querySelector("#quiz-stage-holder svg");
   const target = svg.querySelector(`[data-id="${quizCurrent.id}"]`);
   if(target) target.classList.add("selected");
   svg.querySelectorAll(".shape").forEach(x=> x.style.pointerEvents="none");
-
   const others = shuffle(allStructs().filter(s=>s.id!==quizCurrent.id));
   const options = shuffle([quizCurrent, ...others.slice(0,3)]);
   const optsHolder = document.getElementById("quiz-opts");
   optsHolder.innerHTML = "";
   document.getElementById("quiz-feedback").textContent = "";
   document.getElementById("btn-next-q").style.display = "none";
-
   options.forEach(opt=>{
     const b = document.createElement("button");
     b.className = "qopt";
@@ -540,18 +792,13 @@ function answerQuiz(chosen, btnEl){
       if(b.textContent === quizCurrent.name) b.classList.add("correct");
     });
     quizWrong.push({levelName:quizCurrent.levelName, correct:quizCurrent.name, chosen:chosen.name});
-  } else {
-    quizScore++;
-  }
+  } else { quizScore++; }
   const feedbackText = quizCurrent.pearl || quizCurrent.risk || "";
   document.getElementById("quiz-feedback").innerHTML = (correct ? "Corretto. " : "Non corretto. ") + feedbackText;
   document.getElementById("q-score").textContent = `Corrette: ${quizScore}`;
   document.getElementById("btn-next-q").style.display = "block";
 }
-document.getElementById("btn-next-q").addEventListener("click", ()=>{
-  quizIdx++;
-  nextQuestion();
-});
+document.getElementById("btn-next-q").addEventListener("click", ()=>{ quizIdx++; nextQuestion(); });
 function finishQuiz(){
   document.getElementById("quiz-running").style.display="none";
   document.getElementById("quiz-result").style.display="block";
@@ -563,11 +810,9 @@ function finishQuiz(){
   else if(pct>=0.5) comment="Livello sufficiente ma da consolidare: rivedi i criteri differenziali e riprova.";
   else comment="Serve ancora ripasso: rileggi la tabella dei criteri differenziali e riprova.";
   document.getElementById("final-comment").textContent = comment;
-
   const reviewHolder = document.getElementById("review-list");
-  if(quizWrong.length===0){
-    reviewHolder.innerHTML = "";
-  } else {
+  if(quizWrong.length===0){ reviewHolder.innerHTML = ""; }
+  else {
     reviewHolder.innerHTML = "<h2 class='section-title' style='margin-top:4px;'>Da rivedere</h2>" +
       quizWrong.map(w=>`<div class="review-item">
         <div class="rlvl">${w.levelName}</div>
@@ -583,7 +828,7 @@ document.getElementById("btn-retry-quiz").addEventListener("click", ()=>{
 
 /* ---------- init ---------- */
 buildTabs();
-renderLevel();
+renderScan(0, {doppler:false, compress:false, pulse:false});
 </script>
 
 </body>
