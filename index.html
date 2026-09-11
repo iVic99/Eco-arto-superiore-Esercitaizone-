@@ -109,51 +109,101 @@
   td.artery-cell{color:#f0a99a;} td.vein-cell{color:#a9cdea;} td.nerve-cell{color:var(--nerve);}
   .note{font-size:0.76rem; color:var(--text-dim); margin-top:8px;}
 
+  /* body map overview */
+  .bodymap-wrap{padding:14px;}
+  svg.bodymap{width:100%; height:auto; display:block; max-width:280px; margin:0 auto;}
+  .map-marker{cursor:pointer;}
+  .map-marker circle.dot{fill:var(--amber); stroke:var(--bg); stroke-width:2.5;}
+  .map-marker circle.pulse-ring{fill:none; stroke:var(--amber); stroke-width:1.5; opacity:0.6; animation:mapPulse 2.2s ease-out infinite;}
+  .map-marker text{fill:var(--bg); font-size:12px; font-weight:700; font-family:ui-monospace,Menlo,monospace; text-anchor:middle; dominant-baseline:central; pointer-events:none;}
+  @keyframes mapPulse{
+    0%{r:11; opacity:0.55;}
+    100%{r:20; opacity:0;}
+  }
+  .map-legend{display:grid; gap:8px; padding:0 14px 14px 14px;}
+  .map-legend-item{
+    display:flex; gap:10px; align-items:flex-start;
+    background:var(--panel-2); border:1px solid var(--line); border-radius:9px;
+    padding:10px 12px; cursor:pointer;
+  }
+  .map-legend-item .num{
+    flex:0 0 auto; width:22px; height:22px; border-radius:50%;
+    background:var(--amber); color:var(--bg); font-weight:700; font-size:0.74rem;
+    display:flex; align-items:center; justify-content:center;
+    font-family:ui-monospace,Menlo,monospace;
+  }
+  .map-legend-item .txt{font-size:0.8rem; color:#cdd7da;}
+  .map-legend-item .txt b{display:block; font-size:0.85rem; margin-bottom:2px; color:var(--text);}
+
   /* scan track (probe sweep) */
-  .scan-wrap{padding:12px 14px 16px 14px; border-bottom:1px solid var(--line);}
-  .scan-caption{font-size:0.76rem; color:var(--text-dim); margin-bottom:10px;}
+  .scan-wrap{padding:14px 14px 16px 14px; border-bottom:1px solid var(--line);}
+  .scan-caption{font-size:0.72rem; color:var(--text-dim); margin-bottom:8px; font-style:italic;}
   .scan-track{
     position:relative;
-    height:40px;
-    background:var(--panel-2);
+    height:84px;
     border:1px solid var(--line);
-    border-radius:20px;
+    border-radius:14px;
     touch-action:none;
     cursor:pointer;
+    overflow:hidden;
+    background:var(--panel-2);
+  }
+  .scan-track svg.limb-bg{
+    position:absolute; top:0; left:0; width:100%; height:100%;
+    pointer-events:none;
   }
   .scan-fill{
     position:absolute; top:0; left:0; height:100%;
-    background:linear-gradient(90deg, rgba(232,197,71,0.05), rgba(232,197,71,0.28));
-    border-radius:20px 0 0 20px;
+    background:linear-gradient(90deg, rgba(232,197,71,0.02), rgba(232,197,71,0.12));
     pointer-events:none;
   }
-  .scan-handle{
-    position:absolute; top:50%; width:30px; height:30px;
-    margin-top:-15px; margin-left:-15px;
-    background:var(--amber);
-    border-radius:50%;
-    box-shadow:0 0 0 5px rgba(232,197,71,0.18);
-    cursor:grab;
-    display:flex; align-items:center; justify-content:center;
+  .landmark{
+    position:absolute; top:6px; bottom:6px; width:1px;
+    background:rgba(255,255,255,0.2);
+    pointer-events:none;
   }
-  .scan-handle::after{
-    content:"";
-    width:10px; height:10px;
-    border-radius:50%;
-    background:var(--bg);
+  .landmark-tag{
+    position:absolute; top:4px;
+    font-size:0.6rem; color:rgba(255,255,255,0.55);
+    font-family:ui-monospace,Menlo,monospace;
+    transform:translateX(-50%);
+    white-space:nowrap;
+    pointer-events:none;
   }
-  .scan-handle:active{cursor:grabbing;}
+  .scan-probe{
+    position:absolute; top:52%; left:0%;
+    width:52px; height:60px;
+    margin-left:-26px; margin-top:-26px;
+    pointer-events:none;
+    transition:left .05s linear, transform .12s ease-out;
+    transform:translateY(0) rotate(0deg);
+    z-index:5;
+  }
+  .scan-probe.settling{transition:left .05s linear, transform .3s ease-out;}
+  .scan-probe svg{width:100%; height:100%; overflow:visible;}
+  .probe-beam{animation:beamPulse 1.6s ease-in-out infinite;}
+  @keyframes beamPulse{0%,100%{opacity:0.14;} 50%{opacity:0.34;}}
+  .probe-cable{stroke:#7c8a90; stroke-width:3; fill:none; stroke-linecap:round;}
+  .probe-body{fill:var(--amber); stroke:#a68b2f; stroke-width:1.5;}
+  .probe-face{fill:#4a3f1a;}
   .scan-labels{
     display:flex; justify-content:space-between;
     font-size:0.68rem; color:var(--text-dim);
     margin-top:8px;
     font-family:ui-monospace,Menlo,monospace;
   }
-  .scan-pos{
-    font-family:ui-monospace,Menlo,monospace;
-    color:var(--amber);
-    font-size:0.7rem;
+  .scan-pos{font-family:ui-monospace,Menlo,monospace; color:var(--amber); font-size:0.7rem;}
+  .scan-anat{
+    margin-top:10px;
+    padding:9px 11px;
+    background:var(--panel-2);
+    border-left:2px solid var(--amber);
+    border-radius:0 6px 6px 0;
+    font-size:0.82rem;
+    color:#e8eef0;
+    min-height:20px;
   }
+  .scan-anat b{color:var(--amber);}
 
   .quiz-card{background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:14px;}
   .quiz-progress{display:flex; justify-content:space-between; font-size:0.76rem; color:var(--text-dim); margin-bottom:10px; font-family:ui-monospace,Menlo,monospace;}
@@ -185,7 +235,68 @@
 <div class="tabbar" id="tabbar"></div>
 
 <main>
-  <div class="view active" id="view-scan">
+  <div class="view active" id="view-map">
+    <div class="stage">
+      <div class="stage-head">
+        <div>
+          <span class="lvl-name">Punti di repere sul corpo</span>
+          <span class="lvl-sub">Tocca un punto (o la voce sotto) per aprire la vista ecografica corrispondente</span>
+        </div>
+      </div>
+      <div class="bodymap-wrap">
+        <svg class="bodymap" viewBox="0 0 260 300" xmlns="http://www.w3.org/2000/svg">
+          <ellipse cx="130" cy="34" rx="26" ry="28" fill="#8a6142"/>
+          <rect x="116" y="56" width="28" height="24" fill="#8a6142"/>
+          <path d="M70,80 L190,80 L205,192 L55,192 Z" fill="#25373a" stroke="#33484c" stroke-width="1"/>
+          <line x1="148" y1="82" x2="193" y2="90" stroke="#4a6166" stroke-width="1.5" stroke-dasharray="3 3"/>
+          <path d="M188,86 C210,93 224,120 221,150 C219,174 207,184 205,192 C202,206 196,236 192,268 L168,266 C172,236 178,206 180,193 C182,184 190,170 190,150 C190,127 180,106 172,92 Z" fill="#8a6142" stroke="#6e4c32" stroke-width="1"/>
+          <ellipse cx="180" cy="279" rx="14" ry="17" fill="#8a6142" stroke="#6e4c32" stroke-width="1"/>
+
+          <g class="map-marker" data-region="collo">
+            <circle class="pulse-ring" cx="130" cy="68" r="11"/>
+            <circle class="dot" cx="130" cy="68" r="11"/>
+            <text x="130" y="69">3</text>
+          </g>
+          <g class="map-marker" data-region="succlavia">
+            <circle class="pulse-ring" cx="178" cy="92" r="11"/>
+            <circle class="dot" cx="178" cy="92" r="11"/>
+            <text x="178" y="93">4</text>
+          </g>
+          <g class="map-marker" data-region="braccio">
+            <circle class="pulse-ring" cx="207" cy="140" r="11"/>
+            <circle class="dot" cx="207" cy="140" r="11"/>
+            <text x="207" y="141">2</text>
+          </g>
+          <g class="map-marker" data-region="gomito">
+            <circle class="pulse-ring" cx="203" cy="193" r="11"/>
+            <circle class="dot" cx="203" cy="193" r="11"/>
+            <text x="203" y="194">1</text>
+          </g>
+        </svg>
+      </div>
+      <div class="map-legend" id="map-legend">
+        <div class="map-legend-item" data-region="gomito">
+          <span class="num">1</span>
+          <span class="txt"><b>Fossa antecubitale (gomito)</b>Accesso periferico — cefalica, mediana cubitale, basilica, arteria brachiale, nervo mediano.</span>
+        </div>
+        <div class="map-legend-item" data-region="braccio">
+          <span class="num">2</span>
+          <span class="txt"><b>Braccio medio</b>PICC — vena basilica, arteria e vene brachiali, nervo mediano e ulnare.</span>
+        </div>
+        <div class="map-legend-item" data-region="collo">
+          <span class="num">3</span>
+          <span class="txt"><b>Collo (regione giugulare)</b>CVC — vena giugulare interna, carotide comune, nervo vago.</span>
+        </div>
+        <div class="map-legend-item" data-region="succlavia">
+          <span class="num">4</span>
+          <span class="txt"><b>Regione succlavia / infraclaveare</b>CVC — vena e arteria succlavia, muscolo scaleno anteriore, plesso brachiale.</span>
+        </div>
+      </div>
+      <p class="note" style="padding:0 14px 14px 14px;">Figura schematica, non in scala e non rappresentativa di una persona reale — serve solo a orientarti tra le sedi.</p>
+    </div>
+  </div>
+
+  <div class="view" id="view-scan">
     <div class="stage">
       <div class="stage-head">
         <div>
@@ -193,16 +304,36 @@
           <span class="lvl-sub">Trascina il dito (o il cursore) sulla barra per muovere la sonda lungo l'arto, come in una scansione reale</span>
         </div>
       </div>
+      <p class="scan-caption">Vista schematica del braccio destro, versante mediale (non in scala)</p>
       <div class="scan-wrap">
         <div class="scan-track" id="scan-track">
+          <svg class="limb-bg" viewBox="0 0 400 84" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M0,26 C60,17 120,17 190,12 C270,7 330,14 400,28 L400,58 C330,72 270,77 190,72 C120,68 60,68 0,60 Z" fill="#5c4133"/>
+            <path d="M0,26 C60,17 120,17 190,12 C270,7 330,14 400,28" stroke="#6f4f3a" stroke-width="1" fill="none" opacity="0.6"/>
+          </svg>
           <div class="scan-fill" id="scan-fill"></div>
-          <div class="scan-handle" id="scan-handle"></div>
+          <div class="landmark" style="left:8%;"></div>
+          <div class="landmark-tag" style="left:8%;">gomito</div>
+          <div class="landmark" style="left:40%;"></div>
+          <div class="landmark-tag" style="left:40%;">1/3 distale</div>
+          <div class="landmark" style="left:72%;"></div>
+          <div class="landmark-tag" style="left:72%;">1/3 medio</div>
+          <div class="scan-probe" id="scan-probe">
+            <svg viewBox="0 0 56 66" xmlns="http://www.w3.org/2000/svg">
+              <polygon class="probe-beam" points="18,34 38,34 52,64 4,64" fill="var(--amber)"/>
+              <path class="probe-cable" d="M28 10 C 18 0, 8 -6, 0 -14"/>
+              <path class="probe-cable" d="M28 10 C 38 0, 46 -4, 52 -10"/>
+              <rect class="probe-body" x="6" y="8" width="44" height="22" rx="6"/>
+              <rect class="probe-face" x="10" y="28" width="36" height="5" rx="2"/>
+            </svg>
+          </div>
         </div>
         <div class="scan-labels">
-          <span>Fossa antecubitale (gomito)</span>
+          <span>Fossa antecubitale</span>
           <span class="scan-pos" id="scan-pos-label">0%</span>
           <span>Braccio medio</span>
         </div>
+        <div class="scan-anat" id="scan-anat-label">—</div>
       </div>
       <div class="controls">
         <button class="ctrlbtn" id="btn-doppler">Color Doppler</button>
@@ -557,12 +688,20 @@ function findScanInfo(dataId){
   return null;
 }
 
+function describePosition(t){
+  if(t <= 0.10) return "Sei sulla <b>piega del gomito</b> (fossa antecubitale): sonda in asse corto, appena distale alle strutture del gomito.";
+  if(t <= 0.35) return "Sei nel <b>terzo distale del braccio</b>, poco sopra la piega del gomito, versante mediale.";
+  if(t <= 0.65) return "Sei nel <b>terzo medio-distale del braccio</b>, versante mediale, sopra il decorso della vena basilica e del fascio brachiale.";
+  return "Sei nel <b>terzo medio del braccio</b>, versante mediale, tra bicipite e tricipite — punto di repere classico per l'inserzione ecoguidata del PICC.";
+}
+
 function renderScan(t, preserveModes){
   scanT = Math.max(0, Math.min(1, t));
   document.getElementById("scan-svg-holder").innerHTML = buildScanSVG(scanT);
   document.getElementById("scan-fill").style.width = (scanT*100)+"%";
-  document.getElementById("scan-handle").style.left = (scanT*100)+"%";
   document.getElementById("scan-pos-label").textContent = Math.round(scanT*100)+"%";
+  document.getElementById("scan-anat-label").innerHTML = describePosition(scanT);
+  positionProbe(scanT);
   const svg = document.getElementById("scan-echo-svg");
   if(preserveModes){
     if(preserveModes.doppler) svg.classList.add("doppler");
@@ -576,6 +715,23 @@ function renderScan(t, preserveModes){
       showScanInfo(el.getAttribute("data-id"));
     });
   });
+}
+
+let lastProbeT = 0;
+let settleTimer = null;
+function positionProbe(t){
+  const probe = document.getElementById("scan-probe");
+  const delta = t - lastProbeT;
+  lastProbeT = t;
+  const tilt = Math.max(-16, Math.min(16, delta*550));
+  probe.classList.remove("settling");
+  probe.style.left = (t*100)+"%";
+  probe.style.transform = `translateY(0) rotate(${tilt}deg)`;
+  clearTimeout(settleTimer);
+  settleTimer = setTimeout(()=>{
+    probe.classList.add("settling");
+    probe.style.transform = "translateY(0) rotate(0deg)";
+  }, 90);
 }
 
 function showScanInfo(dataId){
@@ -694,15 +850,27 @@ document.getElementById("btn-pulse-s").addEventListener("click", (e)=>{
   e.currentTarget.classList.toggle("on");
 });
 
-/* ---------- tabbar ---------- */
+/* ---------- tabbar & navigazione ---------- */
 function switchView(name){
+  document.getElementById("view-map").classList.toggle("active", name==="map");
   document.getElementById("view-scan").classList.toggle("active", name==="scan");
   document.getElementById("view-atlas").classList.toggle("active", name==="atlas");
   document.getElementById("view-quiz").classList.toggle("active", name==="quiz");
 }
+let tabButtons = [];
+function setActiveTab(idx){
+  tabButtons.forEach((b,i)=> b.classList.toggle("active", i===idx));
+}
+function goToRegion(region){
+  if(region==="gomito"){ switchView("scan"); setActiveTab(1); renderScan(0, currentScanModes()); }
+  else if(region==="braccio"){ switchView("scan"); setActiveTab(1); renderScan(1, currentScanModes()); }
+  else if(region==="collo"){ currentLevel=2; switchView("atlas"); setActiveTab(2); renderLevel(); }
+  else if(region==="succlavia"){ currentLevel=3; switchView("atlas"); setActiveTab(3); renderLevel(); }
+}
 function buildTabs(){
   const bar = document.getElementById("tabbar");
   const tabs = [
+    {label:"Panoramica", action:()=>{ switchView("map"); }},
     {label:"Scansione braccio", action:()=>{ switchView("scan"); }},
     {label:"Collo", action:()=>{ currentLevel=2; switchView("atlas"); renderLevel(); }},
     {label:"Succlavia", action:()=>{ currentLevel=3; switchView("atlas"); renderLevel(); }}
@@ -711,22 +879,26 @@ function buildTabs(){
     const b = document.createElement("button");
     b.className = "tabbtn" + (i===0 ? " active":"");
     b.textContent = t.label;
-    b.addEventListener("click", ()=>{
-      document.querySelectorAll("#tabbar .tabbtn").forEach(x=>x.classList.remove("active"));
-      b.classList.add("active");
-      t.action();
-    });
+    b.addEventListener("click", ()=>{ setActiveTab(i); t.action(); });
     bar.appendChild(b);
+    tabButtons.push(b);
   });
   const qb = document.createElement("button");
   qb.className = "tabbtn quiztab";
   qb.textContent = "Verifica";
   qb.addEventListener("click", ()=>{
-    document.querySelectorAll("#tabbar .tabbtn").forEach(x=>x.classList.remove("active"));
+    tabButtons.forEach(x=>x.classList.remove("active"));
     qb.classList.add("active");
     switchView("quiz");
   });
   bar.appendChild(qb);
+
+  document.querySelectorAll(".map-marker").forEach(el=>{
+    el.addEventListener("click", ()=> goToRegion(el.getAttribute("data-region")));
+  });
+  document.querySelectorAll(".map-legend-item").forEach(el=>{
+    el.addEventListener("click", ()=> goToRegion(el.getAttribute("data-region")));
+  });
 }
 
 /* ---------- quiz ---------- */
