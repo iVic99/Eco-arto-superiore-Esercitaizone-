@@ -69,18 +69,78 @@
   .ctrlbtn{background:var(--panel-2); border:1px solid var(--line); color:var(--text); padding:7px 11px; border-radius:7px; font-size:0.76rem; font-weight:600; cursor:pointer;}
   .ctrlbtn.on{background:var(--amber); color:var(--bg); border-color:var(--amber);}
   svg.echo{display:block; width:100%; height:auto; background:radial-gradient(ellipse at 50% 30%, var(--tissue-2), var(--tissue) 75%); touch-action:none;}
+  #svg-holder, #scan-svg-holder{position:relative; overflow:hidden; border-radius:0 0 4px 4px;}
+  #svg-holder::before, #scan-svg-holder::before{
+    content:"";
+    position:absolute; inset:0;
+    background-image:radial-gradient(rgba(255,255,255,0.05) 1px, transparent 1px);
+    background-size:5px 5px;
+    opacity:0.55;
+    animation:grain 0.5s steps(4) infinite;
+    pointer-events:none;
+  }
+  @keyframes grain{
+    0%{background-position:0 0;}
+    25%{background-position:2px 1px;}
+    50%{background-position:-1px 2px;}
+    75%{background-position:1px -1px;}
+    100%{background-position:0 0;}
+  }
+  #svg-holder::after, #scan-svg-holder::after{
+    content:"";
+    position:absolute; left:0; right:0; height:2px;
+    background:linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+    top:-6%;
+    animation:sweepLine 3.4s linear infinite;
+    pointer-events:none;
+  }
+  @keyframes sweepLine{
+    0%{top:-4%; opacity:0;}
+    8%{opacity:0.85;}
+    90%{opacity:0.85;}
+    100%{top:100%; opacity:0;}
+  }
   .shape{cursor:pointer; stroke-width:2; transition:transform .35s ease, fill .25s ease; transform-box:fill-box; transform-origin:center;}
   .shape.selected{stroke:var(--amber); stroke-width:3.5;}
   .artery-shape{fill:#0a0d0e; stroke:#5a4038;}
   svg.doppler .artery-shape{fill:var(--artery); opacity:0.88;}
-  svg.pulse .artery-shape{animation:pulseA 1.1s ease-in-out infinite;}
-  @keyframes pulseA{0%,100%{transform:scale(1);} 35%{transform:scale(1.09);}}
+  svg.pulse .artery-shape{animation:pulseA 0.92s cubic-bezier(.24,.87,.35,1) infinite;}
+  svg.doppler.pulse .artery-shape{animation:pulseA 0.92s cubic-bezier(.24,.87,.35,1) infinite, dopplerFlashA 0.92s cubic-bezier(.24,.87,.35,1) infinite;}
+  @keyframes pulseA{
+    0%{transform:scale(1);}
+    11%{transform:scale(1.12);}
+    26%{transform:scale(1.03);}
+    40%{transform:scale(1.06);}
+    65%{transform:scale(1.01);}
+    100%{transform:scale(1);}
+  }
+  @keyframes dopplerFlashA{
+    0%{opacity:0.75;}
+    11%{opacity:1;}
+    40%{opacity:0.9;}
+    100%{opacity:0.75;}
+  }
   .vein-shape{fill:#0a0d0e; stroke:#3a4c58;}
   svg.doppler .vein-shape{fill:var(--vein); opacity:0.8;}
   svg.compressed .vein-shape{transform:scaleY(0.3);}
   svg.compressed .vein-shape.low-compress{transform:scaleY(0.82);}
+  svg.pulse:not(.compressed) .vein-shape{animation:veinResp 4.2s ease-in-out infinite;}
+  svg.doppler.pulse:not(.compressed) .vein-shape{animation:veinResp 4.2s ease-in-out infinite, dopplerFlashV 4.2s ease-in-out infinite;}
+  @keyframes veinResp{
+    0%,100%{transform:scaleY(1);}
+    50%{transform:scaleY(0.88);}
+  }
+  @keyframes dopplerFlashV{
+    0%,100%{opacity:0.62;}
+    50%{opacity:0.85;}
+  }
   .nerve-shape{fill:#141c1f; stroke:var(--nerve-dim);}
   .nerve-fasc{fill:#0a0d0e; stroke:var(--nerve-dim); stroke-width:1; pointer-events:none;}
+  svg.glide .nerve-outer{animation:nerveGlide 1.5s ease-in-out infinite;}
+  @keyframes nerveGlide{
+    0%,100%{transform:translateX(0);}
+    50%{transform:translateX(7px);}
+  }
   .muscle-shape{fill:#20302f; stroke:#33453f; stroke-width:1.5; opacity:0.85; pointer-events:none;}
   .orient{fill:#5c6b70; font-size:9.5px; font-family:ui-monospace,Menlo,monospace; letter-spacing:0.06em;}
   .info{padding:14px; min-height:118px;}
@@ -239,60 +299,61 @@
     <div class="stage">
       <div class="stage-head">
         <div>
-          <span class="lvl-name">Punti di repere sul corpo</span>
-          <span class="lvl-sub">Tocca un punto (o la voce sotto) per aprire la vista ecografica corrispondente</span>
+          <span class="lvl-name">Punti di repere sull'arto superiore</span>
+          <span class="lvl-sub">Reperi di superficie — tocca un punto per aprire la vista ecografica corrispondente</span>
         </div>
       </div>
       <div class="bodymap-wrap">
-        <svg class="bodymap" viewBox="0 0 260 300" xmlns="http://www.w3.org/2000/svg">
-          <ellipse cx="130" cy="34" rx="26" ry="28" fill="#8a6142"/>
-          <rect x="116" y="56" width="28" height="24" fill="#8a6142"/>
-          <path d="M70,80 L190,80 L205,192 L55,192 Z" fill="#25373a" stroke="#33484c" stroke-width="1"/>
-          <line x1="148" y1="82" x2="193" y2="90" stroke="#4a6166" stroke-width="1.5" stroke-dasharray="3 3"/>
-          <path d="M188,86 C210,93 224,120 221,150 C219,174 207,184 205,192 C202,206 196,236 192,268 L168,266 C172,236 178,206 180,193 C182,184 190,170 190,150 C190,127 180,106 172,92 Z" fill="#8a6142" stroke="#6e4c32" stroke-width="1"/>
-          <ellipse cx="180" cy="279" rx="14" ry="17" fill="#8a6142" stroke="#6e4c32" stroke-width="1"/>
+        <svg class="bodymap" viewBox="0 0 260 400" xmlns="http://www.w3.org/2000/svg" style="max-width:230px;">
+          <path d="M92,18 C62,34 56,92 66,142 C73,178 83,208 89,238 C93,257 91,267 89,282 C85,314 81,350 79,388
+                   L119,388 C121,350 125,314 129,282 C131,267 127,257 131,238 C137,208 147,178 154,142
+                   C164,92 158,34 128,18 Z"
+                fill="#8a6142" stroke="#6e4c32" stroke-width="1.5"/>
 
-          <g class="map-marker" data-region="collo">
-            <circle class="pulse-ring" cx="130" cy="68" r="11"/>
-            <circle class="dot" cx="130" cy="68" r="11"/>
-            <text x="130" y="69">3</text>
-          </g>
-          <g class="map-marker" data-region="succlavia">
-            <circle class="pulse-ring" cx="178" cy="92" r="11"/>
-            <circle class="dot" cx="178" cy="92" r="11"/>
-            <text x="178" y="93">4</text>
+          <ellipse cx="80" cy="244" rx="7" ry="6" fill="#7a5236" stroke="#5c3e28" stroke-width="1"/>
+
+          <path d="M83,375 C78,320 72,260 76,220 C79,196 72,160 70,120 C68,90 72,55 88,28"
+                stroke="#3f7fb0" stroke-width="2.2" stroke-dasharray="4 4" fill="none" opacity="0.85"/>
+
+          <line x1="66" y1="242" x2="140" y2="248" stroke="#e8eef0" stroke-width="1" stroke-dasharray="3 3" opacity="0.55"/>
+
+          <g class="map-marker" data-region="gomito">
+            <circle class="pulse-ring" cx="106" cy="245" r="11"/>
+            <circle class="dot" cx="106" cy="245" r="11"/>
+            <text x="106" y="246">1</text>
           </g>
           <g class="map-marker" data-region="braccio">
-            <circle class="pulse-ring" cx="207" cy="140" r="11"/>
-            <circle class="dot" cx="207" cy="140" r="11"/>
-            <text x="207" y="141">2</text>
+            <circle class="pulse-ring" cx="88" cy="142" r="11"/>
+            <circle class="dot" cx="88" cy="142" r="11"/>
+            <text x="88" y="143">2</text>
           </g>
-          <g class="map-marker" data-region="gomito">
-            <circle class="pulse-ring" cx="203" cy="193" r="11"/>
-            <circle class="dot" cx="203" cy="193" r="11"/>
-            <text x="203" y="194">1</text>
-          </g>
+
+          <line x1="66" y1="252" x2="18" y2="266" stroke="#8a9aa0" stroke-width="1"/>
+          <text x="16" y="270" class="mlabel" font-size="9.5" fill="#b7c2c5" text-anchor="end">Epicondilo mediale</text>
+
+          <line x1="140" y1="248" x2="196" y2="256" stroke="#8a9aa0" stroke-width="1"/>
+          <text x="198" y="260" class="mlabel" font-size="9.5" fill="#b7c2c5">Piega del gomito</text>
+
+          <line x1="155" y1="120" x2="200" y2="108" stroke="#8a9aa0" stroke-width="1"/>
+          <text x="202" y="111" class="mlabel" font-size="9.5" fill="#b7c2c5">Bicipite brachiale</text>
+
+          <line x1="75" y1="150" x2="18" y2="150" stroke="#3f7fb0" stroke-width="1"/>
+          <text x="16" y="146" class="mlabel" font-size="9.5" fill="#8fb9d6" text-anchor="end">Decorso superficiale</text>
+          <text x="16" y="157" class="mlabel" font-size="9.5" fill="#8fb9d6" text-anchor="end">v. basilica</text>
         </svg>
       </div>
       <div class="map-legend" id="map-legend">
         <div class="map-legend-item" data-region="gomito">
           <span class="num">1</span>
-          <span class="txt"><b>Fossa antecubitale (gomito)</b>Accesso periferico — cefalica, mediana cubitale, basilica, arteria brachiale, nervo mediano.</span>
+          <span class="txt"><b>Fossa antecubitale (piega del gomito)</b>Accesso periferico — cefalica, mediana cubitale, basilica, arteria brachiale, nervo mediano.</span>
         </div>
         <div class="map-legend-item" data-region="braccio">
           <span class="num">2</span>
-          <span class="txt"><b>Braccio medio</b>PICC — vena basilica, arteria e vene brachiali, nervo mediano e ulnare.</span>
-        </div>
-        <div class="map-legend-item" data-region="collo">
-          <span class="num">3</span>
-          <span class="txt"><b>Collo (regione giugulare)</b>CVC — vena giugulare interna, carotide comune, nervo vago.</span>
-        </div>
-        <div class="map-legend-item" data-region="succlavia">
-          <span class="num">4</span>
-          <span class="txt"><b>Regione succlavia / infraclaveare</b>CVC — vena e arteria succlavia, muscolo scaleno anteriore, plesso brachiale.</span>
+          <span class="txt"><b>Terzo medio del braccio, versante mediale</b>PICC — vena basilica, arteria e vene brachiali, nervo mediano e ulnare.</span>
         </div>
       </div>
-      <p class="note" style="padding:0 14px 14px 14px;">Figura schematica, non in scala e non rappresentativa di una persona reale — serve solo a orientarti tra le sedi.</p>
+      <p class="note" style="padding:0 14px 14px 14px;">Figura schematica dei soli reperi di superficie, non in scala. Le strutture profonde (arterie, vene, nervi) sono nella vista ecografica di ciascun punto — questa immagine serve solo a orientarti su dove appoggiare la sonda sul braccio.</p>
+      <p class="note" style="padding:0 14px 14px 14px;">Per gli accessi centrali a collo e regione succlavia, usa le rispettive schede qui sopra.</p>
     </div>
   </div>
 
@@ -338,7 +399,8 @@
       <div class="controls">
         <button class="ctrlbtn" id="btn-doppler">Color Doppler</button>
         <button class="ctrlbtn" id="btn-compress">Test compressione</button>
-        <button class="ctrlbtn" id="btn-pulse">Mostra pulsatilità</button>
+        <button class="ctrlbtn" id="btn-pulse">Mostra pulsatilità/respiro</button>
+        <button class="ctrlbtn" id="btn-glide">Scorrimento nervo</button>
       </div>
       <div id="scan-svg-holder"></div>
       <div class="legend">
@@ -367,7 +429,8 @@
       <div class="controls">
         <button class="ctrlbtn" id="btn-doppler-s">Color Doppler</button>
         <button class="ctrlbtn" id="btn-compress-s">Test compressione</button>
-        <button class="ctrlbtn" id="btn-pulse-s">Mostra pulsatilità</button>
+        <button class="ctrlbtn" id="btn-pulse-s">Mostra pulsatilità/respiro</button>
+        <button class="ctrlbtn" id="btn-glide-s">Scorrimento nervo</button>
       </div>
       <div id="svg-holder"></div>
       <div class="legend">
@@ -586,7 +649,7 @@ function buildSVG(level){
     }
     const cls = s.type+"-shape";
     if(s.type==="nerve"){
-      shapes += `<g class="shape ${cls}" data-id="${s.id}" tabindex="0">
+      shapes += `<g class="shape ${cls} nerve-outer" data-id="${s.id}" tabindex="0">
         <ellipse cx="${s.x}" cy="${s.y}" rx="${s.rx}" ry="${s.ry}" class="nerve-shape"/>
         ${fascicles(s.x,s.y,s.rx,s.ry)}
       </g>`;
@@ -631,7 +694,7 @@ function buildScanSVG(t){
     const cls = pair.type+"-shape";
     const dataId = "pair_"+pair.name.replace(/\s+/g,"_");
     if(pair.type==="nerve"){
-      shapes += `<g class="shape ${cls}" data-id="${dataId}" tabindex="0">
+      shapes += `<g class="shape ${cls} nerve-outer" data-id="${dataId}" tabindex="0">
         <ellipse cx="${x}" cy="${y}" rx="${rx}" ry="${ry}" class="nerve-shape"/>
         ${fascicles(x,y,rx,ry)}
       </g>`;
@@ -656,7 +719,7 @@ function buildScanSVG(t){
         <ellipse cx="${s.x+s.offset}" cy="${s.y}" rx="${s.rx*0.5}" ry="${s.ry*0.62}"/>
       </g>`;
     } else if(s.type==="nerve"){
-      shapes += `<g class="shape ${cls}" data-id="${s.id}" tabindex="0" style="opacity:${op}; pointer-events:${op>0.15?'all':'none'};">
+      shapes += `<g class="shape ${cls} nerve-outer" data-id="${s.id}" tabindex="0" style="opacity:${op}; pointer-events:${op>0.15?'all':'none'};">
         <ellipse cx="${s.x}" cy="${s.y}" rx="${s.rx}" ry="${s.ry}" class="nerve-shape"/>
         ${fascicles(s.x,s.y,s.rx,s.ry)}
       </g>`;
@@ -707,6 +770,7 @@ function renderScan(t, preserveModes){
     if(preserveModes.doppler) svg.classList.add("doppler");
     if(preserveModes.compress) svg.classList.add("compressed");
     if(preserveModes.pulse) svg.classList.add("pulse");
+    if(preserveModes.glide) svg.classList.add("glide");
   }
   svg.querySelectorAll(".shape").forEach(el=>{
     el.addEventListener("click", ()=>{
@@ -783,7 +847,8 @@ function currentScanModes(){
   return {
     doppler: document.getElementById("btn-doppler").classList.contains("on"),
     compress: document.getElementById("btn-compress").classList.contains("on"),
-    pulse: document.getElementById("btn-pulse").classList.contains("on")
+    pulse: document.getElementById("btn-pulse").classList.contains("on"),
+    glide: document.getElementById("btn-glide").classList.contains("on")
   };
 }
 document.getElementById("btn-doppler").addEventListener("click", (e)=>{
@@ -795,6 +860,10 @@ document.getElementById("btn-compress").addEventListener("click", (e)=>{
   renderScan(scanT, currentScanModes());
 });
 document.getElementById("btn-pulse").addEventListener("click", (e)=>{
+  e.currentTarget.classList.toggle("on");
+  renderScan(scanT, currentScanModes());
+});
+document.getElementById("btn-glide").addEventListener("click", (e)=>{
   e.currentTarget.classList.toggle("on");
   renderScan(scanT, currentScanModes());
 });
@@ -810,6 +879,7 @@ function renderLevel(){
   document.getElementById("btn-doppler-s").classList.remove("on");
   document.getElementById("btn-compress-s").classList.remove("on");
   document.getElementById("btn-pulse-s").classList.remove("on");
+  document.getElementById("btn-glide-s").classList.remove("on");
   document.getElementById("info-panel").innerHTML = '<p class="placeholder">Tocca una struttura sull\'immagine per vedere nome, criteri di identificazione, note cliniche e rischi da evitare in puntura.</p>';
   attachStaticHandlers();
 }
@@ -847,6 +917,10 @@ document.getElementById("btn-compress-s").addEventListener("click", (e)=>{
 });
 document.getElementById("btn-pulse-s").addEventListener("click", (e)=>{
   document.querySelector("#svg-holder svg").classList.toggle("pulse");
+  e.currentTarget.classList.toggle("on");
+});
+document.getElementById("btn-glide-s").addEventListener("click", (e)=>{
+  document.querySelector("#svg-holder svg").classList.toggle("glide");
   e.currentTarget.classList.toggle("on");
 });
 
